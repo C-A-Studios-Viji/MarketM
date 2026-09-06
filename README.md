@@ -1,34 +1,48 @@
 # MarketM
 
-Competitive browser-based stock market game.
+MarketM is a live multiplayer stock-market simulation for classroom and competitive play.
 
-## Features
+## Multiplayer
 
-- Create a room with a six-character code
-- Host can trade while controlling the match
-- 30 global and Indian companies
-- Simulated market movement
-- Random market headlines every two minutes
-- Buy and sell shares
-- Portfolio cash, holdings, P&L and net worth
-- Live leaderboard
-- Host controls: Start, Pause, +30 seconds, +1 minute, +5 minutes and End Game
-- Winner gets +2% starting capital for the next round
-- Last place gets a +1% comeback boost for the next round
-- Responsive dark trading-terminal interface
+- Host creates a 6-character room code.
+- Up to 20 players can join from different phones, tablets, or computers.
+- The host is the authoritative game state and can trade while controlling the room.
+- Player trade requests are validated by the host before state is broadcast.
+- Live prices, portfolios, leaderboard, timer, news shocks, pause/resume and extra-time controls sync across the room.
+- Winner gets +2% starting capital in the next round.
+- Last place gets +1% comeback capital in the next round.
 
-## Run
+## Stocks
 
-Open `index.html` in a modern browser.
+30 simulated global and Indian companies, including Apple, Microsoft, NVIDIA, Amazon, Tesla, JPMorgan, Reliance, TCS, Infosys, HDFC Bank, SBI, Tata Motors, NTPC and more.
 
-## GitHub Pages
+## Networking
 
-The site is ready to serve from the repository root on the `main` branch.
+The browser client uses PeerJS 1.5.5 and WebRTC data channels. By default it uses the free PeerJS Cloud service for connection signalling. After signalling, game data is exchanged directly between the host and players.
 
-Go to **Settings → Pages → Build and deployment → Deploy from a branch**, choose **main** and **/(root)**, then save.
+`peer-config.js` can be changed to point the game to the included self-hosted PeerServer backend.
 
-## Multiplayer note
+## Self-hosted signalling backend
 
-The static GitHub version synchronizes tabs/windows in the same browser with browser storage and `BroadcastChannel`. True cross-device multiplayer needs a realtime backend such as Firebase, Supabase, or WebSockets.
+```bash
+npm install
+npm start
+```
 
-MarketM is an educational simulation. It does not use real money or brokerage APIs.
+Environment variables:
+
+- `PORT` defaults to `9000`
+- `PEER_PATH` defaults to `/marketm`
+- `PEER_KEY` defaults to `marketm`
+
+Then set `window.MARKETM_PEER_OPTIONS` in `peer-config.js` to your deployed backend hostname, port, path, key and HTTPS setting.
+
+## Frontend deployment
+
+GitHub Pages can serve this repository directly from `main` / root. `index.html` redirects to the multiplayer client.
+
+## Current architecture note
+
+The host device owns the live match state, so the host tab must remain online for the room to continue. For persistent rooms that survive the host closing the browser, move authoritative room state into a hosted database/realtime backend such as Supabase.
+
+MarketM uses fictional prices and news. It does not connect to a brokerage or use real money.
