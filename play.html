@@ -12,16 +12,82 @@
 <script>
 (async()=>{
   try{
-    const stamp='turn-relay-3';
+    const stamp='assistant-1';
     const res=await fetch('./multiplayer.html?'+stamp,{cache:'no-store'});
     if(!res.ok) throw new Error('game '+res.status);
     let html=await res.text();
+    const patch=(from,to)=>{if(!html.includes(from))throw new Error('patch missing');html=html.replace(from,to)};
+
     html=html.replace('./peer-config.js','./peer-config.js?'+stamp);
     html=html.replace(
       '<script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"><\/script>',
       '<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js" onerror="this.onerror=null;this.src=\'https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js\'"><\/script>'
     );
     html=html.replace("reliable:true,serialization:'json'","reliable:false,serialization:'json'");
+
+    patch('</style>',`.assistantHero{border:1px solid rgba(34,211,238,.3);border-radius:16px;padding:15px;background:linear-gradient(135deg,rgba(34,211,238,.08),rgba(52,211,153,.04))}.assistantHero h3{margin-bottom:5px}.assistantCost{font-size:28px;font-weight:950;color:var(--cyan)}.pick{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:11px;background:rgba(7,17,31,.34)}.pickNo{font-size:18px;font-weight:950}.pickScore{font-size:11px;color:var(--muted);text-align:right}.autoBuy{color:var(--green);font-size:11px;font-weight:800;margin-top:4px}</style>`);
+
+    patch('<button id="newsBtn" class="btn">News</button>','<button class="btn navBtn" data-v="assistant">Assistant 3%</button><button id="newsBtn" class="btn">News</button>');
+
+    patch('<section id="results" class="panel section result hidden">',`<section id="assistantView" class="panel section hidden"><div class="assistantHero"><div class="eyebrow">MARKETM ASSISTANT</div><h3>Pay 3%. Let it hunt.</h3><div class="assistantCost">3% of current cash</div><p class="tiny" style="margin:8px 0 12px">Scans the latest headline, sector impact and live momentum. It ranks the top 3 stocks, then automatically buys the #1 pick using 30% of your remaining cash.</p><button id="assistantBtn" class="btn primary">Run Assistant + Auto-Buy</button><div id="assistantMsg" class="msg"></div></div><div id="assistantPicks" class="list" style="margin-top:10px"></div></section><section id="results" class="panel section result hidden">`);
+
+    patch("if(['start','pause','time','end','again'].includes(action)&&actorId!==state.hostId)return;if(action==='trade')trade(p,payload);", "if(['start','pause','time','end','again'].includes(action)&&actorId!==state.hostId)return;if(action==='trade')trade(p,payload);else if(action==='assistant')advisor(p);");
+
+    patch('function marketMove(){',`function advisor(p){
+ if(!state.running||state.ended){personal(p.id,'Assistant only works while the market is open.');return}
+ const fee=p.cash*.03;
+ if(!Number.isFinite(fee)||p.cash-fee<10){personal(p.id,'Not enough cash to use the Assistant.');return}
+ p.cash-=fee;
+ const scored=state.stocks.map(s=>{
+   const momentum=(s.price/s.open)-1;
+   let score=momentum*100;
+   let reason=momentum>=0?'Positive price momentum':'Discounted after recent weakness';
+   if(state.lastNews){
+     const hit=state.lastNews.sectors.includes(s.sector);
+     if(hit){
+       score+=state.lastNews.impact*155;
+       reason=state.lastNews.impact>0?'Direct winner from the latest '+s.sector+' headline':'Sector is under pressure, but price may be oversold';
+     }else if(state.lastNews.impact<0){
+       score+=1.25;
+       reason='Less exposed to the current negative headline';
+     }
+   }else{
+     if(['AI','Chip','Tech','India'].includes(s.sector))score+=.35;
+   }
+   score+=(Math.random()-.5)*.18;
+   return {id:s.id,name:s.name,ticker:s.ticker,price:s.price,sector:s.sector,score,reason};
+ }).sort((a,b)=>b.score-a.score);
+ const top=scored.slice(0,3),best=top[0];
+ const budget=p.cash*.30;
+ const qty=Math.floor(budget/best.price);
+ let bought=0,spent=0;
+ if(qty>0){
+   spent=qty*best.price;
+   const h=p.holdings[best.id]||{qty:0,cost:0};
+   p.cash-=spent;h.qty+=qty;h.cost+=spent;p.holdings[best.id]=h;bought=qty;
+ }
+ p.advisor={fee,top,bestId:best.id,bought,spent,news:state.lastNews?state.lastNews.text:'No breaking news yet',round:state.round,rev:state.rev};
+ personal(p.id,bought?'Assistant bought '+bought+' '+best.ticker+' for '+money(spent)+'. Fee: '+money(fee)+'.':'Assistant ranked the market, but your remaining cash could not buy the top pick. Fee: '+money(fee)+'.');
+ commit();
+}
+function marketMove(){`);
+
+    patch("p.cash=p.startCash;p.holdings={};p.bonus=0", "p.cash=p.startCash;p.holdings={};p.bonus=0;p.advisor=null");
+
+    patch('function board(){',`function assistant(){
+ const p=me();if(!p)return;const a=p.advisor;
+ const btn=$('#assistantBtn');if(btn)btn.disabled=!state.running||state.ended;
+ if(!a){$('#assistantMsg').textContent=state.running?'Ready. Running it costs 3% of your current cash.':'Start the market before using the Assistant.';$('#assistantPicks').innerHTML='<div class="notice">No analysis purchased yet.</div>';return}
+ $('#assistantMsg').textContent='Last fee '+money(a.fee)+' • Auto-buy '+(a.bought?a.bought+' shares for '+money(a.spent):'could not execute')+' • Situation: '+a.news;
+ $('#assistantPicks').innerHTML=a.top.map((x,i)=>'<div class="pick"><div class="pickNo">#'+(i+1)+'</div><div><b>'+x.name+' • '+x.ticker+'</b><div class="tiny">'+x.reason+'</div>'+(i===0&&a.bought?'<div class="autoBuy">AUTO-BOUGHT '+a.bought+' SHARES</div>':'')+'</div><div class="pickScore"><b>'+x.score.toFixed(2)+'</b><br>signal</div></div>').join('');
+}
+function board(){`);
+
+    patch("time();stocks();players();portfolio();board();results()", "time();stocks();players();portfolio();assistant();board();results()");
+    patch("['market','portfolio','leaderboard'].forEach", "['market','portfolio','leaderboard','assistant'].forEach");
+    patch("if(v==='portfolio')portfolio();if(v==='leaderboard')board()", "if(v==='portfolio')portfolio();if(v==='leaderboard')board();if(v==='assistant')assistant()");
+    patch("$('#againBtn').onclick=()=>send('again');", "$('#againBtn').onclick=()=>send('again');$('#assistantBtn').onclick=()=>send('assistant');");
+
     document.open();
     document.write(html);
     document.close();
