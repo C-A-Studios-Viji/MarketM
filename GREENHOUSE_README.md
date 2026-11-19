@@ -1,36 +1,41 @@
-# THE GREENHOUSE — SDG 11 3D Survival Game
+# The Greenhouse
 
-A standalone HTML/WebGL first-person horror survival game built with [Three.js](https://threejs.org/). It is added separately from MarketM's existing pages.
+A first-person 3D survival game about restoring civic infrastructure, inspired by UN Sustainable Development Goal 11. The expedition spans 100 doors, from the abandoned city and City Hall to the greenhouse and Urban Core.
 
-## Play
+[Play on GitHub Pages](https://c-a-studios-viji.github.io/MarketM/greenhouse.html)
 
-**GitHub Pages:** [Open the playable 3D game](https://c-a-studios-viji.github.io/MarketM/greenhouse.html) when the Pages deployment is active. Opening the repository root on GitHub.com shows the source code, not a running game. The GitHub Pages address runs it in-browser.
+## How to play
 
-Open `greenhouse.html` through an HTTP(S) server. From a clone of MarketM, run `python3 -m http.server 8000` and visit `http://localhost:8000/greenhouse.html`. A network connection is required for the pinned Three.js CDN module.
+- **WASD or arrow keys** to move, **mouse** to look, **E** to use a nearby station, **Shift** to sprint, **F** to heal, and **Esc** to pause.
+- On a touchscreen, use the direction buttons and drag on the right to look. Use, Heal and Pause have dedicated buttons.
+- Complete the **amber repair station** to unlock the far door. Later rooms also require one or two **green relays**.
+- The **blue side station** offers an optional minigame and rewards one medkit. You can carry up to six.
+- In river rooms, follow the yellow rails across the bridge. Clearing the River Cleanup challenge removes floating litter and improves water clarity.
+- Walk or sprint away from attack cues. Sprinting drains stamina and alerts enemies from farther away. The Sentinel charges, the Root Crawler lunges, and the Canal Skimmer fires across the room.
+- At Door 50, repair three terminals to defeat The Mayor. At Door 100, the Rewilding, Rebuilding or Purification protocol determines the final boss and its terminal challenges.
+- Continue from the main menu to restore your current door, repair and side-game progress, health, medkits and final protocol. Previous Greenhouse saves can continue at their saved door.
 
-### Controls
+## Challenges
 
-- **WASD / arrow keys:** move
-- **Mouse:** look around (click game to lock pointer)
-- **Shift:** sprint
-- **E:** interact with doors, supplies, and boss terminals
-- **F:** use a medical supply
-- **Esc:** pause
-- **Touch:** directional buttons and right-side swipe look, USE button for interaction
+| Minigame | Objective |
+| --- | --- |
+| Circuit Bypass | Rotate the pipes to connect the input to the output. |
+| Signal Echo | Replay and repeat a signal sequence. |
+| Pressure Lock | Catch the marker in the green band. |
+| Waste Shift | Sort materials into the designated waste streams. |
+| River Cleanup | Recover litter while leaving wildlife and natural material in the river. |
+| Valve Balance | Adjust the inlet and drain to reach the target pressure. |
 
-## Game design
+## Run locally
 
-- **Doors 1–49:** procedurally varied city locations, including apartments, shops, metro, offices, and streets.
-- **Door 50:** mid-boss **The Mayor**, defeated by activating three city-system terminals while evading attacks.
-- **Doors 51–99:** greenhouse wings with hydroponics, compost, filtration, and the Urban Core.
-- **Door 100:** select Rewilding / Rebuilding / Purification, leading to **Overgrowth / Engineer / Smog**. The final bosses use different attack patterns and are defeated by completing three terminal activations.
-- Supplies, health, dynamic lighting, shadow maps, fog, first-person camera, enemy patrols, projectile attacks, interactive pickups and progression saving.
-- Every tenth or ninth regular door offers a system-repair SDG 11 interaction.
+Start an HTTP server from the repository root with `python3 -m http.server 8000`. Open `http://localhost:8000/greenhouse.html`. The game needs a WebGL2-capable browser and an internet connection to load the pinned [Three.js](https://github.com/mrdoob/three.js) module (MIT).
 
-## Free asset and engine licensing
+## Asset credits
 
-All scene geometry, simple characters, effects, UI, and signage are original procedural assets made in code for this game. The only third-party runtime is [Three.js](https://github.com/mrdoob/three.js), distributed under the MIT license. This ensures that no paid, pirated, or license-ambiguous models are needed. Suitable **optional future upgrades** from verified CC0 libraries include [Poly Haven](https://polyhaven.com/license) and [ambientCG](https://docs.ambientcg.com/license/). Those external libraries are **not bundled or represented as integrated**.
+The room textures below are distributed under [Poly Haven's CC0 license](https://polyhaven.com/license). Color maps are bundled as resized WebP files. Geometry, water animation, effects and sound cues are produced by the game.
 
-## Technical scope
-
-This is a playable browser-based 3D game, not an Unreal Engine/AAA photorealistic production. Rooms use reusable layouts with procedural variation, not 100 individually hand-modeled levels. Lighting quality, shadows, and frame rate depend on the device and browser. It is single-player and requires WebGL2-capable browser hardware.
+| Bundled texture | Source |
+| --- | --- |
+| Weathered concrete | [Concrete Floor 02](https://polyhaven.com/a/concrete_floor_02) |
+| Greenhouse ground | [Forest Floor](https://polyhaven.com/a/forest_floor) |
+| Riverbed and banks | [River Small Rocks](https://polyhaven.com/a/river_small_rocks) |
