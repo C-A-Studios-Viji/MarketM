@@ -28,7 +28,7 @@ A first-person 3D survival game about restoring civic infrastructure, inspired b
 
 ## Run locally
 
-Start an HTTP server from the repository root with `python3 -m http.server 8000`. Open `http://localhost:8000/greenhouse.html`. The game needs a WebGL2-capable browser and an internet connection to load the pinned [Three.js](https://github.com/mrdoob/three.js) module (MIT).
+Start an HTTP server from the repository root with `python3 -m http.server 8000`. Open `http://localhost:8000/greenhouse.html`. The game uses WebGL2 for first-person 3D and opens an overhead map view when WebGL2 is unavailable. An internet connection is required to load the pinned [Three.js](https://github.com/mrdoob/three.js) module (MIT).
 
 ## Asset credits
 

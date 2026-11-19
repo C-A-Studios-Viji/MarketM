@@ -31,6 +31,7 @@ button:disabled { cursor: default; opacity: .48; }
 button.secondary { background: #1b2b25; color: var(--ink); border-color: var(--edge); }
 a { color: var(--green); }
 p { color: var(--muted); line-height: 1.6; }
+#view-note { position: fixed; z-index: 1; right: 12px; bottom: 12px; padding: 6px; color: #c4e3cf; background: #0d2019; font: 11px ui-monospace, monospace; pointer-events: none; }
 #hud, #mobile { position: fixed; inset: 0; pointer-events: none; }
 .hud-top { position: absolute; top: 18px; left: 20px; right: 20px; display: flex; justify-content: space-between; gap: 10px; }
 .hud-panel { background: var(--panel); border: 1px solid var(--edge); border-radius: 9px; padding: 11px 14px; backdrop-filter: blur(8px); }
@@ -94,6 +95,7 @@ h2 { font-size: clamp(28px, 5vw, 49px); }
   .mobile-actions #interact { grid-column: span 2; }
   #mobile button { pointer-events: auto; padding: 4px; touch-action: none; }
   .controls { display: none; }
+  #view-note { top: 91px; bottom: auto; }
   #hint { bottom: max(110px, calc(env(safe-area-inset-bottom) + 100px)); }
 }
 @media (max-width: 550px) {

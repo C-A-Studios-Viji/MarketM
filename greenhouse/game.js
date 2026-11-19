@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { gameNames, openMinigame } from './minigames.js';
+import { createMapView } from './map-view.js';
 import { buildExit, buildRoom, disposeGroup, green, plaque, roomPlan, station } from './rooms.js';
-import { bossNames, createThreats } from './threats.js';
+import { bossNames, createThreats } from './threats.js?v=map';
 
 const $ = id => document.getElementById(id);
 const saveKey = 'greenhouse-100-doors-v2';
@@ -18,16 +19,31 @@ scene.add(world);
 
 const camera = new THREE.PerspectiveCamera(73, innerWidth / innerHeight, .07, 170);
 camera.rotation.order = 'YXZ';
-const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(devicePixelRatio, finePointer.matches ? 1.55 : 1.3));
-renderer.setSize(innerWidth, innerHeight);
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.16;
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.domElement.setAttribute('aria-label', 'First-person view of The Greenhouse');
-document.body.prepend(renderer.domElement);
+function createRenderer() {
+  const canvas = document.createElement('canvas');
+  try {
+    const context = canvas.getContext('webgl2', { antialias: true, powerPreference: 'high-performance' });
+    if (!context) return null;
+    const view = new THREE.WebGLRenderer({ canvas, context });
+    view.setPixelRatio(Math.min(devicePixelRatio, finePointer.matches ? 1.55 : 1.3));
+    view.setSize(innerWidth, innerHeight);
+    view.outputColorSpace = THREE.SRGBColorSpace;
+    view.toneMapping = THREE.ACESFilmicToneMapping;
+    view.toneMappingExposure = 1.16;
+    view.shadowMap.enabled = true;
+    view.shadowMap.type = THREE.PCFSoftShadowMap;
+    canvas.setAttribute('aria-label', 'First-person view of The Greenhouse');
+    return view;
+  } catch {
+    return null;
+  }
+}
+
+const renderer = createRenderer();
+const mapView = renderer ? null : createMapView();
+const gameCanvas = renderer?.domElement ?? mapView.canvas;
+document.body.prepend(gameCanvas);
+if (mapView) $('view-note').hidden = false;
 
 const hemi = new THREE.HemisphereLight(0xcde2d5, 0x3d332b, 1.35);
 const sun = new THREE.DirectionalLight(0xc8f0d5, 1.8);
@@ -66,6 +82,7 @@ let touchLook;
 let audio;
 let previousHint = '';
 let bankBlocked = false;
+let isPreview = true;
 
 function fresh() {
   return { door: 1, hp: 100, supplies: 2, choice: null, sideWins: 0, cleared: [] };
@@ -158,13 +175,13 @@ function clearInput() {
 }
 
 function unlockPointer() {
-  if (document.pointerLockElement === renderer.domElement) document.exitPointerLock?.();
+  if (document.pointerLockElement === gameCanvas) document.exitPointerLock?.();
 }
 
 function requestLook() {
-  if (!finePointer.matches || document.pointerLockElement === renderer.domElement) return;
+  if (!renderer || !finePointer.matches || document.pointerLockElement === gameCanvas) return;
   try {
-    renderer.domElement.requestPointerLock?.()?.catch?.(() => {});
+    gameCanvas.requestPointerLock?.()?.catch?.(() => {});
   } catch {
     // Movement and click-to-look remain available if pointer lock is restricted.
   }
@@ -252,7 +269,7 @@ function updateHUD() {
 
 function addStation(kind, x, z, title, key, action) {
   const object = station(world, x, z, kind, title);
-  const entry = { x, z, object, title, action, visible: true };
+  const entry = { kind, x, z, object, title, action, visible: true };
   if (key && doorsCleared.has(key)) completed(entry, kind === 'pickup');
   interactables.push(entry);
   return entry;
@@ -377,6 +394,7 @@ function setUpObjectives() {
 }
 
 function setupRoom(cleared = [], preview = false) {
+  isPreview = preview;
   disposeGroup(world);
   doorsCleared.clear();
   for (const key of cleared) doorsCleared.add(key);
@@ -606,7 +624,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) pause
 document.addEventListener('pointerlockchange', () => {
   if (state === 'playing' && !document.pointerLockElement) pause();
 });
-renderer.domElement.addEventListener('click', () => { if (state === 'playing') requestLook(); });
+gameCanvas.addEventListener('click', () => { if (state === 'playing') requestLook(); });
 
 function look(dx, dy) {
   yaw -= dx;
@@ -614,7 +632,7 @@ function look(dx, dy) {
 }
 
 document.addEventListener('mousemove', event => {
-  if (state === 'playing' && (document.pointerLockElement === renderer.domElement || event.buttons === 1 && event.target === renderer.domElement)) {
+  if (renderer && state === 'playing' && (document.pointerLockElement === gameCanvas || event.buttons === 1 && event.target === gameCanvas)) {
     look(event.movementX * .0024, event.movementY * .0024);
   }
 });
@@ -631,7 +649,7 @@ for (const id of ['forward', 'left', 'back', 'right']) {
 }
 
 $('look').onpointerdown = event => {
-  if (state !== 'playing' || touchLook) return;
+  if (!renderer || state !== 'playing' || touchLook) return;
   touchLook = { id: event.pointerId, x: event.clientX, y: event.clientY };
   $('look').setPointerCapture(event.pointerId);
 };
@@ -651,7 +669,8 @@ $('pause').onclick = pause;
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+  renderer?.setSize(innerWidth, innerHeight);
+  mapView?.resize();
 });
 
 function frame() {
@@ -660,7 +679,11 @@ function frame() {
   if (state === 'playing') update(step);
   geometry.river?.update(time, doorsCleared.has('repair'));
   if (toastUntil && performance.now() >= toastUntil) hideToast();
-  renderer.render(scene, camera);
+  if (renderer) renderer.render(scene, camera);
+  else mapView.render({
+    plan, geometry, player, interactables, threats, time,
+    unlocked: !isPreview && canExit(), clean: doorsCleared.has('repair'), preview: isPreview,
+  });
   requestAnimationFrame(frame);
 }
 

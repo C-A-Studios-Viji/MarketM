@@ -253,6 +253,9 @@ export function createThreats(group, plan, protocol, river, { alert, hit, move }
   }
 
   return {
+    overview() {
+      return dead ? null : { actor: body.position, boss, aiming: state === 'windup', shots, zones };
+    },
     update(step, player) {
       if (dead) return;
       time += step;

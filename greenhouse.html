@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#08130f">
   <title>The Greenhouse | MarketM</title>
-  <link rel="stylesheet" href="./greenhouse/game.css">
+  <link rel="stylesheet" href="./greenhouse/game.css?v=map">
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}</script>
 </head>
 <body>
+  <div id="view-note" hidden>Map view · 3D unavailable</div>
   <div id="hud" hidden>
     <header class="hud-top">
       <div class="hud-panel location">
@@ -71,7 +72,7 @@
     <p id="game-status" role="status" aria-live="polite"></p>
   </dialog>
   <script type="module">
-    import('./greenhouse/game.js').catch(() => {
+    import('./greenhouse/game.js?v=map').catch(() => {
       document.getElementById('menu-title').textContent = '3D engine unavailable';
       document.getElementById('menu-text').textContent = 'Reload with WebGL enabled and an internet connection to start the game.';
       const retry = document.createElement('button');
