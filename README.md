@@ -1,4 +1,17 @@
-# MarketM
+# THE GREENHOUSE — Play Online
+
+**[Play the 100-door 3D Greenhouse game](https://c-a-studios-viji.github.io/MarketM/)** (GitHub Pages, when deployment is active). The repository homepage redirects to `greenhouse.html`.
+
+- **Doors 1–49:** explore the city
+- **Door 50:** The Mayor mid-boss
+- **Doors 51–99:** explore the greenhouse
+- **Door 100:** choose Rewilding, Rebuilding, or Purification and face a corresponding boss
+- Original MarketM multiplayer remains at **[play.html](https://c-a-studios-viji.github.io/MarketM/play.html)**.
+- [Game controls, licenses and limitations](GREENHOUSE_README.md).
+
+---
+
+# MarketM Multiplayer
 
 MarketM is a live multiplayer stock-market simulation for classroom and competitive play.
 
