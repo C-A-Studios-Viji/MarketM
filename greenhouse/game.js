@@ -43,7 +43,12 @@ const renderer = createRenderer();
 const mapView = renderer ? null : createMapView();
 const gameCanvas = renderer?.domElement ?? mapView.canvas;
 document.body.prepend(gameCanvas);
-if (mapView) $('view-note').hidden = false;
+if (mapView) {
+  document.body.classList.add('map-mode');
+  $('view-note').hidden = false;
+  $('desktop-controls').textContent = 'WASD move · E use · Shift sprint · F heal · Esc pause';
+  $('menu-input-hint').textContent = 'WASD or arrows to move, E to interact, Shift to sprint, F to heal. On touchscreens, use the direction buttons.';
+}
 
 const hemi = new THREE.HemisphereLight(0xcde2d5, 0x3d332b, 1.35);
 const sun = new THREE.DirectionalLight(0xc8f0d5, 1.8);
@@ -674,9 +679,15 @@ addEventListener('resize', () => {
 });
 
 function frame() {
-  const step = Math.min(clock.getDelta(), .065);
-  if (state === 'playing' || state === 'menu') time += step;
-  if (state === 'playing') update(step);
+  const elapsed = Math.min(clock.getDelta(), .5);
+  if (state === 'menu') time += elapsed;
+  let remaining = elapsed;
+  while (state === 'playing' && remaining > 0) {
+    const step = Math.min(remaining, 1 / 30);
+    time += step;
+    update(step);
+    remaining -= step;
+  }
   geometry.river?.update(time, doorsCleared.has('repair'));
   if (toastUntil && performance.now() >= toastUntil) hideToast();
   if (renderer) renderer.render(scene, camera);

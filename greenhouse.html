@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#08130f">
   <title>The Greenhouse | MarketM</title>
-  <link rel="stylesheet" href="./greenhouse/game.css?v=map">
+  <link rel="stylesheet" href="./greenhouse/game.css?v=responsive-map">
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}</script>
 </head>
 <body>
@@ -32,7 +32,7 @@
     <div id="toast" role="status" aria-live="polite" hidden></div>
     <div class="crosshair" aria-hidden="true"></div>
     <div id="hint"></div>
-    <div class="controls">WASD move · Mouse look · E use · Shift sprint · F heal · Esc pause</div>
+    <div id="desktop-controls" class="controls">WASD move · Mouse look · E use · Shift sprint · F heal · Esc pause</div>
     <div id="damage-flash" aria-hidden="true"></div>
   </div>
   <div id="mobile" hidden>
@@ -56,7 +56,7 @@
       <p id="menu-text">The city's infrastructure has failed. Repair your way through 100 doors, survive City Hall, and decide how to restore the Urban Core.</p>
       <div id="choices" class="actions"><button disabled>Loading 3D engine…</button></div>
       <div id="menu-controls" class="menu-controls">
-        <p>WASD or arrows to move, mouse to look, E to interact, Shift to sprint, F to heal. On touchscreens, use the direction buttons and drag on the right to look.</p>
+        <p id="menu-input-hint">WASD or arrows to move, mouse to look, E to interact, Shift to sprint, F to heal. On touchscreens, use the direction buttons and drag on the right to look.</p>
         <a href="./play.html">MarketM Multiplayer</a>
       </div>
     </section>
@@ -72,7 +72,7 @@
     <p id="game-status" role="status" aria-live="polite"></p>
   </dialog>
   <script type="module">
-    import('./greenhouse/game.js?v=map').catch(() => {
+    import('./greenhouse/game.js?v=responsive-map').catch(() => {
       document.getElementById('menu-title').textContent = '3D engine unavailable';
       document.getElementById('menu-text').textContent = 'Reload with WebGL enabled and an internet connection to start the game.';
       const retry = document.createElement('button');

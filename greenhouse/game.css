@@ -49,6 +49,7 @@ p { color: var(--muted); line-height: 1.6; }
 .task strong, .task span { display: block; }
 .task strong { font-size: 14px; margin: 4px 0; }
 #side-objective { font-size: 12px; color: var(--gold); }
+.map-mode .crosshair { display: none; }
 .crosshair { position: absolute; left: 50%; top: 50%; translate: -50% -50%; width: 6px; height: 6px; border: 1px solid #eaffdd; border-radius: 50%; box-shadow: 0 0 5px black; }
 #hint, #toast { position: absolute; left: 50%; translate: -50% 0; width: max-content; max-width: calc(100% - 28px); text-align: center; }
 #hint { bottom: 58px; color: var(--ink); background: #091b14ec; border: 1px solid var(--edge); padding: 9px 14px; border-radius: 7px; font-size: 14px; }
