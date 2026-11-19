@@ -4,6 +4,8 @@ A standalone HTML/WebGL first-person horror survival game built with [Three.js](
 
 ## Play
 
+**GitHub Pages:** [Open the playable 3D game](https://c-a-studios-viji.github.io/MarketM/greenhouse.html) when the Pages deployment is active. Opening the repository root on GitHub.com shows the source code, not a running game. The GitHub Pages address runs it in-browser.
+
 Open `greenhouse.html` through an HTTP(S) server. From a clone of MarketM, run `python3 -m http.server 8000` and visit `http://localhost:8000/greenhouse.html`. A network connection is required for the pinned Three.js CDN module.
 
 ### Controls
